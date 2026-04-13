@@ -44,7 +44,7 @@ class SemanticCache:
         self.pca: Optional[PCA] = None
         # each dimension has a boundary that is set by the percentiles of the pca reduced data
         self._bucket_boundaries = None
-        self._pca_trained: bool = False
+        self._pca_trained = False
         self._pca_training_data: List[np.ndarray] = []
         self._pca_min_samples: int = pca_min_samples
 
