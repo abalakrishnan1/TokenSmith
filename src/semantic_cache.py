@@ -13,14 +13,12 @@ import numpy as np
 from src.embedder import CachedEmbedder
 from sklearn.decomposition import PCA
 
-
 @dataclass
 class CacheEntry:
     chunk_id: int
     text: str
     embedding: np.ndarray
     batch_id: int
-
 
 class SemanticCache:
     def __init__(self, capacity: int = 100, alpha: float = 0.9, deviation: float = 0.25, n_buckets: int = 4, d_reduced: int = 4, pca_min_samples: int = 10, embed_model: str = "models/Qwen3-Embedding-4B-Q5_K_M.gguf"):
@@ -31,7 +29,7 @@ class SemanticCache:
         self.d_reduced = d_reduced
         self.embed_model = CachedEmbedder(embed_model)
 
-        # Cached chunks — parallel to FAISS index positions
+        # Cached chunks, essentially a smaller version of the main index
         self._entries: List[CacheEntry] = []
         self._seen_ids: set = set()
         self._index: Optional[faiss.IndexFlatL2] = None
