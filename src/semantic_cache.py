@@ -150,14 +150,14 @@ class SemanticCache:
                 self._thresholds[key] = d_k_l2
 
         # gather pca data for training
-        if not self._pca_trained:
-            self._pca_training_data.append(q_vec.copy())
-            for seed_query in self._pca_seed_queries:
-                self._pca_training_data.append(self.embed_model.encode([seed_query]).astype("float32").flatten())
-            if len(self._pca_training_data) >= self._pca_min_samples:
-                self._train_pca()
-                print(f"[CACHE] PCA trained with {len(self._pca_training_data)} samples", flush=True)
-                print(f"[CACHE] PCA boundaries: {self._bucket_boundaries}", flush=True)
+        # if not self._pca_trained:
+        #     self._pca_training_data.append(q_vec.copy())
+        #     for seed_query in self._pca_seed_queries:
+        #         self._pca_training_data.append(self.embed_model.encode([seed_query]).astype("float32").flatten())
+        #     if len(self._pca_training_data) >= self._pca_min_samples:
+        #         self._train_pca()
+        #         print(f"[CACHE] PCA trained with {len(self._pca_training_data)} samples", flush=True)
+        #         print(f"[CACHE] PCA boundaries: {self._bucket_boundaries}", flush=True)
 
         # filter out chunks already in the cache
         new_items = [(cid, text, emb) 
@@ -237,7 +237,13 @@ class SemanticCache:
         """project embedding via pca, bucket each reduced dimension"""
         # this is a fallback until the pca is trained
         if not self._pca_trained:
-            return "global"
+            for seed_query in self._pca_seed_queries:
+                self._pca_training_data.append(self.embed_model.encode([seed_query]).astype("float32").flatten())
+            if len(self._pca_training_data) >= self._pca_min_samples:
+                self._train_pca()
+                print(f"[CACHE] PCA trained with {len(self._pca_training_data)} samples", flush=True)
+                print(f"[CACHE] PCA boundaries: {self._bucket_boundaries}", flush=True)
+
         reduced = self.pca.transform(embedding.reshape(1, -1))[0]
         buckets = []
         for dim in range(self.d_reduced):

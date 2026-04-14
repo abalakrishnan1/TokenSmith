@@ -140,66 +140,66 @@ def get_answer(
     # Step 1: Get chunks (golden, retrieved, or none), skipped on cache hit
     chunks_info = None
     hyde_query = None
-    if not cache_hit:
-        if golden_chunks and cfg.use_golden_chunks:
-            ranked_chunks = golden_chunks
-        elif cfg.disable_chunks:
-            ranked_chunks = []
-        elif cfg.use_indexed_chunks:
-            ranked_chunks, topk_idxs = use_indexed_chunks(question, chunks)
-        else:
-            retrieval_query = question
-            # print(f"Retrieval query: {retrieval_query}")
-            if cfg.use_hyde:
-                retrieval_query = generate_hypothetical_document(question, cfg.gen_model, max_tokens=cfg.hyde_max_tokens)
 
-            pool_n = max(cfg.num_candidates, cfg.top_k + 10)
-            raw_scores: Dict[str, Dict[int, float]] = {}
-            for retriever in retrievers:
-                # print(f"Getting scores from retriever: {retriever.name}...")
-                raw_scores[retriever.name] = retriever.get_scores(retrieval_query, pool_n, chunks)
+    if golden_chunks and cfg.use_golden_chunks:
+        ranked_chunks = golden_chunks
+    elif cfg.disable_chunks:
+        ranked_chunks = []
+    elif cfg.use_indexed_chunks:
+        ranked_chunks, topk_idxs = use_indexed_chunks(question, chunks)
+    elif not cache_hit:
+        retrieval_query = question
+        # print(f"Retrieval query: {retrieval_query}")
+        if cfg.use_hyde:
+            retrieval_query = generate_hypothetical_document(question, cfg.gen_model, max_tokens=cfg.hyde_max_tokens)
 
-            # Step 2: Ranking
-            ordered, scores = ranker.rank(raw_scores=raw_scores)
-            topk_idxs = filter_retrieved_chunks(cfg, chunks, ordered)
-            ranked_chunks = [chunks[i] for i in topk_idxs]
+        pool_n = max(cfg.num_candidates, cfg.top_k + 10)
+        raw_scores: Dict[str, Dict[int, float]] = {}
+        for retriever in retrievers:
+            # print(f"Getting scores from retriever: {retriever.name}...")
+            raw_scores[retriever.name] = retriever.get_scores(retrieval_query, pool_n, chunks)
 
-            # Cache insert on miss, store chunk embeddings for future hits
-            if semantic_cache is not None and cfg.use_semantic_cache:
-                semantic_cache.insert(
-                    query=question,
-                    ranked_chunks=ranked_chunks,
-                    chunk_ids=topk_idxs,
-                    k=cache_k,
-                )
+        # Step 2: Ranking
+        ordered, scores = ranker.rank(raw_scores=raw_scores)
+        topk_idxs = filter_retrieved_chunks(cfg, chunks, ordered)
+        ranked_chunks = [chunks[i] for i in topk_idxs]
 
-            # Capture chunk info if in test mode
-            if is_test_mode:
-                faiss_scores = raw_scores.get("faiss", {})
-                bm25_scores = raw_scores.get("bm25", {})
-                index_scores = raw_scores.get("index_keywords", {})
+        # Cache insert on miss, store chunk embeddings for future hits
+        if semantic_cache is not None and cfg.use_semantic_cache:
+            semantic_cache.insert(
+                query=question,
+                ranked_chunks=ranked_chunks,
+                chunk_ids=topk_idxs,
+                k=cache_k,
+            )
 
-                faiss_ranked = sorted(faiss_scores.keys(), key=lambda i: faiss_scores[i], reverse=True)
-                bm25_ranked = sorted(bm25_scores.keys(), key=lambda i: bm25_scores[i], reverse=True)
-                index_ranked = sorted(index_scores.keys(), key=lambda i: index_scores[i], reverse=True)
+    # Capture chunk info if in test mode
+    if is_test_mode:
+        faiss_scores = raw_scores.get("faiss", {})
+        bm25_scores = raw_scores.get("bm25", {})
+        index_scores = raw_scores.get("index_keywords", {})
 
-                faiss_ranks = {idx: rank + 1 for rank, idx in enumerate(faiss_ranked)}
-                bm25_ranks = {idx: rank + 1 for rank, idx in enumerate(bm25_ranked)}
-                index_ranks = {idx: rank + 1 for rank, idx in enumerate(index_ranked)}
+        faiss_ranked = sorted(faiss_scores.keys(), key=lambda i: faiss_scores[i], reverse=True)
+        bm25_ranked = sorted(bm25_scores.keys(), key=lambda i: bm25_scores[i], reverse=True)
+        index_ranked = sorted(index_scores.keys(), key=lambda i: index_scores[i], reverse=True)
 
-                chunks_info = []
-                for rank, idx in enumerate(topk_idxs, 1):
-                    chunks_info.append({
-                        "rank": rank,
-                        "chunk_id": idx,
-                        "content": chunks[idx],
-                        "faiss_score": faiss_scores.get(idx, 0),
-                        "faiss_rank": faiss_ranks.get(idx, 0),
-                        "bm25_score": bm25_scores.get(idx, 0),
-                        "bm25_rank": bm25_ranks.get(idx, 0),
-                        "index_score": index_scores.get(idx, 0),
-                        "index_rank": index_ranks.get(idx, 0),
-                    })
+        faiss_ranks = {idx: rank + 1 for rank, idx in enumerate(faiss_ranked)}
+        bm25_ranks = {idx: rank + 1 for rank, idx in enumerate(bm25_ranked)}
+        index_ranks = {idx: rank + 1 for rank, idx in enumerate(index_ranked)}
+
+        chunks_info = []
+        for rank, idx in enumerate(topk_idxs, 1):
+            chunks_info.append({
+                "rank": rank,
+                "chunk_id": idx,
+                "content": chunks[idx],
+                "faiss_score": faiss_scores.get(idx, 0),
+                "faiss_rank": faiss_ranks.get(idx, 0),
+                "bm25_score": bm25_scores.get(idx, 0),
+                "bm25_rank": bm25_ranks.get(idx, 0),
+                "index_score": index_scores.get(idx, 0),
+                "index_rank": index_ranks.get(idx, 0),
+            })
 
     # Step 3: Final re-ranking
     ranked_chunks = rerank(question, ranked_chunks, mode=cfg.rerank_mode, top_n=cfg.rerank_top_k)

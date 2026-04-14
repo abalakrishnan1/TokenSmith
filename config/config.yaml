@@ -18,7 +18,7 @@ use_double_prompt: false
 enable_history: false
 max_history_turns: 3
 enable_topic_extraction: true
-disable_streaming: true
+disable_streaming: false # added this for testing 
 
 use_semantic_cache: true 
 cache_capacity: 100 # this is the max entry count in the cache
