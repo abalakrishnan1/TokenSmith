@@ -247,7 +247,7 @@ def get_answer(
             for delta in stream_iter:
                 ans += delta
             ans = dedupe_generated_text(ans)
-            print(ans)
+            # print(ans)
         else:
             ans = render_streaming_ans(console, stream_iter)
 

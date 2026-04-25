@@ -12,6 +12,7 @@ import faiss
 import numpy as np
 from src.embedder import CachedEmbedder
 from sklearn.decomposition import PCA
+from src.retriever import _get_embedder
 
 @dataclass
 class CacheEntry:
@@ -27,7 +28,7 @@ class SemanticCache:
         self.deviation = deviation
         self.n_buckets = n_buckets
         self.d_reduced = d_reduced
-        self.embed_model = CachedEmbedder(embed_model)
+        self.embed_model = _get_embedder(embed_model)
 
         # Cached chunks, essentially a smaller version of the main index
         self._entries: List[CacheEntry] = []
@@ -88,8 +89,8 @@ class SemanticCache:
         region = self._compute_region_key(q_vec.flatten())
         threshold = self._thresholds.get((k, region))
         
-        print(f"[CACHE] region: {region}, threshold: {threshold}, dist: {d_k}", flush=True)
-        print(f"[CACHE] thresholds: {self._thresholds}", flush=True)
+        # print(f"[CACHE] region: {region}, threshold: {threshold}, dist: {d_k}", flush=True)
+        # print(f"[CACHE] thresholds: {self._thresholds}", flush=True)
         if threshold is None:
             return None
 

@@ -1,0 +1,437 @@
+{
+  "config": {
+    "capacity": 100,
+    "alpha": 0.9,
+    "deviation": 0.25,
+    "top_k": 10,
+    "rerank_top_k": 5
+  },
+  "results": {
+    "no_cache": [
+      {
+        "topic": "ACID",
+        "query": "What is ACID in databases?",
+        "latency": 7.18,
+        "cache_hit": null,
+        "answer_preview": "In databases, ACID stands for Atomicity, Consistency, Isolation, and Durability. These properties are crucial for ensuring that database transactions ..."
+      },
+      {
+        "topic": "ACID",
+        "query": "Explain the atomicity property of transactions.",
+        "latency": 8.901,
+        "cache_hit": null,
+        "answer_preview": "The atomicity property of transactions ensures that all operations within a transaction are treated as a single, indivisible operation. This means tha..."
+      },
+      {
+        "topic": "ACID",
+        "query": "What happens if a transaction violates consistency?",
+        "latency": 5.486,
+        "cache_hit": null,
+        "answer_preview": "If a transaction violates consistency, it means that the transaction's execution results in the database state being inconsistent, even though each tr..."
+      },
+      {
+        "topic": "ACID",
+        "query": "How does durability protect against system crashes?",
+        "latency": 4.461,
+        "cache_hit": null,
+        "answer_preview": "Durability in database systems ensures that once a transaction is committed, its changes are permanently saved and cannot be lost even if the system c..."
+      },
+      {
+        "topic": "ACID",
+        "query": "What is the isolation property and why does it matter?",
+        "latency": 5.104,
+        "cache_hit": null,
+        "answer_preview": "The isolation property in transaction processing refers to the ability of transactions to maintain the consistency of the database even when they are ..."
+      },
+      {
+        "topic": "ACID",
+        "query": "Give an example of an atomicity failure.",
+        "latency": 6.551,
+        "cache_hit": null,
+        "answer_preview": "            An example of an atomicity failure is when a transaction is interrupted before it can complete its operations, leading to an inconsistent ..."
+      },
+      {
+        "topic": "ACID",
+        "query": "How are ACID properties enforced by a DBMS?",
+        "latency": 9.015,
+        "cache_hit": null,
+        "answer_preview": "ACID properties (Atomicity, Consistency, Isolation, Durability) are typically enforced by a DBMS through a combination of mechanisms such as transacti..."
+      },
+      {
+        "topic": "ACID",
+        "query": "What is the relationship between consistency and integrity constraints?",
+        "latency": 4.798,
+        "cache_hit": null,
+        "answer_preview": "The relationship between consistency and integrity constraints is that integrity constraints are specific rules or conditions that ensure the data in ..."
+      },
+      {
+        "topic": "ACID",
+        "query": "Can a transaction be durable but not atomic? Explain.",
+        "latency": 5.669,
+        "cache_hit": null,
+        "answer_preview": "            No, a transaction cannot be durable but not atomic. The concepts of durability and atomicity are fundamental properties of transactions in..."
+      },
+      {
+        "topic": "ACID",
+        "query": "Describe a scenario where isolation prevents incorrect results.",
+        "latency": 7.759,
+        "cache_hit": null,
+        "answer_preview": "            Isolation in database transactions prevents incorrect results by ensuring that the state of the database remains consistent regardless of ..."
+      },
+      {
+        "topic": "SERIAL",
+        "query": "What is serializability in databases?",
+        "latency": 5.954,
+        "cache_hit": null,
+        "answer_preview": "Serializability in databases refers to the property that ensures that the execution of multiple transactions can be viewed as a single transaction exe..."
+      },
+      {
+        "topic": "SERIAL",
+        "query": "Explain conflict serializability.",
+        "latency": 7.347,
+        "cache_hit": null,
+        "answer_preview": "Conflict serializability is a property of schedules that ensures that the transactions can be executed in a way that preserves the order of operations..."
+      },
+      {
+        "topic": "SERIAL",
+        "query": "What is a schedule in transaction processing?",
+        "latency": 4.677,
+        "cache_hit": null,
+        "answer_preview": "A schedule in transaction processing represents the chronological order in which the instructions are executed in the system. It must consist of all i..."
+      },
+      {
+        "topic": "SERIAL",
+        "query": "How do you test if a schedule is conflict serializable?",
+        "latency": 9.489,
+        "cache_hit": null,
+        "answer_preview": "To test if a schedule is conflict serializable, you need to ensure that the schedule can be transformed into a serial schedule without violating the p..."
+      },
+      {
+        "topic": "SERIAL",
+        "query": "What is the difference between serial and serializable schedules?",
+        "latency": 4.779,
+        "cache_hit": null,
+        "answer_preview": "            The key difference between serial and serializable schedules lies in their ability to maintain the consistency of the database during conc..."
+      },
+      {
+        "topic": "SERIAL",
+        "query": "What is a precedence graph and how is it used?",
+        "latency": 5.956,
+        "cache_hit": null,
+        "answer_preview": "A precedence graph is a tool used to test for conflict serializability in database transactions. It helps to determine if a given schedule of transact..."
+      },
+      {
+        "topic": "SERIAL",
+        "query": "Can a non-serial schedule be correct? Why?",
+        "latency": 4.975,
+        "cache_hit": null,
+        "answer_preview": "Yes, a non-serial schedule can be correct, but this correctness depends on the specific consistency constraints of the database and the properties of ..."
+      },
+      {
+        "topic": "SERIAL",
+        "query": "What is view serializability and how does it differ from conflict serializability?",
+        "latency": 5.795,
+        "cache_hit": null,
+        "answer_preview": "View serializability is a concept in concurrency control that is less stringent than conflict serializability. It is based on the read and write opera..."
+      },
+      {
+        "topic": "SERIAL",
+        "query": "Give an example of a non-serializable schedule.",
+        "latency": 4.962,
+        "cache_hit": null,
+        "answer_preview": "            Based on the textbook excerpts provided, an example of a non-serializable schedule is given in Chapter 18, Section 18.10.5, where it is de..."
+      },
+      {
+        "topic": "SERIAL",
+        "query": "Why is serializability important for concurrent transactions?",
+        "latency": 6.577,
+        "cache_hit": null,
+        "answer_preview": "Serializability is important for concurrent transactions because it ensures that the overall effect of all transactions executed concurrently is the s..."
+      }
+    ],
+    "cache_cold": [
+      {
+        "topic": "ACID",
+        "query": "What is ACID in databases?",
+        "latency": 5.359,
+        "cache_hit": false,
+        "answer_preview": "In databases, ACID stands for Atomicity, Consistency, Isolation, and Durability. These are the four essential properties that ensure reliable and cons..."
+      },
+      {
+        "topic": "ACID",
+        "query": "Explain the atomicity property of transactions.",
+        "latency": 7.269,
+        "cache_hit": false,
+        "answer_preview": "The atomicity property of transactions ensures that all operations within a transaction either complete successfully and their effects are permanently..."
+      },
+      {
+        "topic": "ACID",
+        "query": "What happens if a transaction violates consistency?",
+        "latency": 5.293,
+        "cache_hit": false,
+        "answer_preview": "If a transaction violates consistency, it means that the transaction's execution results in the database being in an inconsistent state, despite each ..."
+      },
+      {
+        "topic": "ACID",
+        "query": "How does durability protect against system crashes?",
+        "latency": 5.237,
+        "cache_hit": false,
+        "answer_preview": "Durability in database systems ensures that once a transaction is committed, its changes are permanently saved and cannot be lost even if the system c..."
+      },
+      {
+        "topic": "ACID",
+        "query": "What is the isolation property and why does it matter?",
+        "latency": 6.043,
+        "cache_hit": true,
+        "answer_preview": "The isolation property in transaction processing refers to the ability to ensure that the execution of multiple transactions does not lead to inconsis..."
+      },
+      {
+        "topic": "ACID",
+        "query": "Give an example of an atomicity failure.",
+        "latency": 5.741,
+        "cache_hit": true,
+        "answer_preview": "            An example of an atomicity failure is when a transaction is interrupted before it can complete its operations, leading to an inconsistent ..."
+      },
+      {
+        "topic": "ACID",
+        "query": "How are ACID properties enforced by a DBMS?",
+        "latency": 8.096,
+        "cache_hit": false,
+        "answer_preview": "ACID properties (Atomicity, Consistency, Isolation, Durability) are typically enforced by a DBMS through various mechanisms such as transaction manage..."
+      },
+      {
+        "topic": "ACID",
+        "query": "What is the relationship between consistency and integrity constraints?",
+        "latency": 3.486,
+        "cache_hit": true,
+        "answer_preview": "The relationship between consistency and integrity constraints is that integrity constraints are a specific set of rules designed to maintain the cons..."
+      },
+      {
+        "topic": "ACID",
+        "query": "Can a transaction be durable but not atomic? Explain.",
+        "latency": 7.395,
+        "cache_hit": true,
+        "answer_preview": "            No, a transaction cannot be durable but not atomic. \n\n            The terms \"durability\" and \"atomicity\" are fundamental properties of tra..."
+      },
+      {
+        "topic": "ACID",
+        "query": "Describe a scenario where isolation prevents incorrect results.",
+        "latency": 8.682,
+        "cache_hit": true,
+        "answer_preview": "            To illustrate a scenario where isolation prevents incorrect results, let's consider a simplified banking system with two accounts, A and B..."
+      },
+      {
+        "topic": "SERIAL",
+        "query": "What is serializability in databases?",
+        "latency": 4.137,
+        "cache_hit": false,
+        "answer_preview": "In databases, serializability refers to the property of a set of concurrent transactions that ensures the final state of the database is the same as i..."
+      },
+      {
+        "topic": "SERIAL",
+        "query": "Explain conflict serializability.",
+        "latency": 9.357,
+        "cache_hit": false,
+        "answer_preview": "Conflict serializability is a property of a set of transactions that ensures that the order in which the transactions execute can be transformed into ..."
+      },
+      {
+        "topic": "SERIAL",
+        "query": "What is a schedule in transaction processing?",
+        "latency": 4.346,
+        "cache_hit": false,
+        "answer_preview": "A schedule in transaction processing refers to a chronological order in which the instructions are executed in the system. It represents the sequence ..."
+      },
+      {
+        "topic": "SERIAL",
+        "query": "How do you test if a schedule is conflict serializable?",
+        "latency": 8.131,
+        "cache_hit": true,
+        "answer_preview": "To test if a schedule is conflict serializable, you use the timestamp ordering technique. Here's a step-by-step breakdown:\n\n1. **Assign Timestamps**: ..."
+      },
+      {
+        "topic": "SERIAL",
+        "query": "What is the difference between serial and serializable schedules?",
+        "latency": 5.724,
+        "cache_hit": true,
+        "answer_preview": "            The key difference between serial and serializable schedules lies in their properties and the consistency they ensure during concurrent ex..."
+      },
+      {
+        "topic": "SERIAL",
+        "query": "What is a precedence graph and how is it used?",
+        "latency": 8.27,
+        "cache_hit": false,
+        "answer_preview": "A precedence graph is a tool used in concurrency control to test for conflict serializability. It helps determine if a given schedule of transactions ..."
+      },
+      {
+        "topic": "SERIAL",
+        "query": "Can a non-serial schedule be correct? Why?",
+        "latency": 7.91,
+        "cache_hit": true,
+        "answer_preview": "            No, a non-serial schedule cannot always be correct. The key point is that transaction isolation ensures that the final state of the databa..."
+      },
+      {
+        "topic": "SERIAL",
+        "query": "What is view serializability and how does it differ from conflict serializability?",
+        "latency": 8.683,
+        "cache_hit": true,
+        "answer_preview": "            View serializability is a form of equivalence that is less stringent than conflict serializability. It is based on the read and write oper..."
+      },
+      {
+        "topic": "SERIAL",
+        "query": "Give an example of a non-serializable schedule.",
+        "latency": 4.639,
+        "cache_hit": true,
+        "answer_preview": "            Based on the provided excerpts, an example of a non-serializable schedule is given in Chapter 17 Section 17.5 Transaction Isolation:\n\n    ..."
+      },
+      {
+        "topic": "SERIAL",
+        "query": "Why is serializability important for concurrent transactions?",
+        "latency": 5.22,
+        "cache_hit": false,
+        "answer_preview": "Serializability is important for concurrent transactions because it ensures that the overall effect of a set of concurrent transactions is the same as..."
+      }
+    ],
+    "cache_warm_paraphrase": [
+      {
+        "topic": "ACID",
+        "query": "Can you describe what the ACID properties mean for a database?",
+        "latency": 8.093,
+        "cache_hit": false,
+        "answer_preview": "            The ACID properties are a set of characteristics that define the reliability and consistency of database transactions. They stand for Atom..."
+      },
+      {
+        "topic": "ACID",
+        "query": "What does it mean for a transaction to be atomic?",
+        "latency": 4.231,
+        "cache_hit": false,
+        "answer_preview": "For a transaction to be atomic means that all its operations must be treated as a single, indivisible unit of work. If any part of the transaction fai..."
+      },
+      {
+        "topic": "ACID",
+        "query": "If a transaction breaks consistency, what does the database do?",
+        "latency": 4.372,
+        "cache_hit": true,
+        "answer_preview": "            If a transaction breaks consistency, the database system must take actions to recover the database contents to a state that ensures databa..."
+      },
+      {
+        "topic": "ACID",
+        "query": "How does a DBMS keep committed data safe after a crash?",
+        "latency": 5.292,
+        "cache_hit": true,
+        "answer_preview": "            A DBMS keeps committed data safe after a crash through the use of a log. Specifically, when a transaction commits, the DBMS records the ch..."
+      },
+      {
+        "topic": "ACID",
+        "query": "Why do we need isolation between concurrent transactions?",
+        "latency": 5.879,
+        "cache_hit": true,
+        "answer_preview": "We need isolation between concurrent transactions to ensure that the database remains consistent despite the concurrent execution of transactions. Whe..."
+      },
+      {
+        "topic": "ACID",
+        "query": "Show me a case where atomicity would fail.",
+        "latency": 8.841,
+        "cache_hit": true,
+        "answer_preview": "            A case where atomicity would fail can be illustrated with the following scenario:\n\n            Consider a banking transaction where a user..."
+      },
+      {
+        "topic": "ACID",
+        "query": "Which mechanisms does a database use to guarantee ACID?",
+        "latency": 6.959,
+        "cache_hit": true,
+        "answer_preview": "A database uses concurrency control schemes to guarantee ACID properties. Specifically, these schemes help control the interaction among concurrent tr..."
+      },
+      {
+        "topic": "ACID",
+        "query": "How is consistency related to integrity rules in a database?",
+        "latency": 6.292,
+        "cache_hit": true,
+        "answer_preview": "Consistency in a database is related to integrity rules through the enforcement of constraints that ensure the data values stored in the database sati..."
+      },
+      {
+        "topic": "ACID",
+        "query": "Is it possible for a transaction to be durable without being atomic?",
+        "latency": 5.041,
+        "cache_hit": true,
+        "answer_preview": "            No, it is not possible for a transaction to be durable without being atomic. \n\n            Durability refers to the ability of a transacti..."
+      },
+      {
+        "topic": "ACID",
+        "query": "When would the isolation property stop a wrong outcome from happening?",
+        "latency": 5.193,
+        "cache_hit": true,
+        "answer_preview": "            The isolation property would stop a wrong outcome from happening when it ensures that the execution of transactions does not violate the d..."
+      },
+      {
+        "topic": "SERIAL",
+        "query": "What does it mean for a schedule to be serializable?",
+        "latency": 6.225,
+        "cache_hit": true,
+        "answer_preview": "A schedule is considered serializable if it can be transformed into a serial schedule (a schedule where transactions execute one after another in a sp..."
+      },
+      {
+        "topic": "SERIAL",
+        "query": "What is conflict serializability about?",
+        "latency": 5.148,
+        "cache_hit": true,
+        "answer_preview": "Conflict serializability is a property of schedules that ensures that the order of transactions' operations can be rearranged into a serial schedule w..."
+      },
+      {
+        "topic": "SERIAL",
+        "query": "Define a schedule in the context of database transactions.",
+        "latency": 4.294,
+        "cache_hit": true,
+        "answer_preview": "In the context of database transactions, a schedule refers to a chronological order in which the instructions or operations of multiple transactions a..."
+      },
+      {
+        "topic": "SERIAL",
+        "query": "How can I check whether a given schedule is conflict serializable?",
+        "latency": 8.996,
+        "cache_hit": false,
+        "answer_preview": "To check whether a given schedule is conflict serializable, you need to ensure that the schedule can be transformed into a serial schedule without vio..."
+      },
+      {
+        "topic": "SERIAL",
+        "query": "How is a serial schedule different from a serializable one?",
+        "latency": 5.815,
+        "cache_hit": true,
+        "answer_preview": "A serial schedule is a specific type of execution sequence where the instructions from all transactions are executed in a strictly sequential order, m..."
+      },
+      {
+        "topic": "SERIAL",
+        "query": "What role does the precedence graph play in serializability testing?",
+        "latency": 5.618,
+        "cache_hit": true,
+        "answer_preview": "            The precedence graph plays a crucial role in serializability testing, particularly in the context of lock-based protocols. It helps to det..."
+      },
+      {
+        "topic": "SERIAL",
+        "query": "Is it ever okay for a schedule to be non-serial?",
+        "latency": 5.877,
+        "cache_hit": true,
+        "answer_preview": "            It is not always okay for a schedule to be non-serial. In a database system, ensuring that all transactions execute in a serial manner (i...."
+      },
+      {
+        "topic": "SERIAL",
+        "query": "How does view serializability compare to conflict serializability?",
+        "latency": 7.606,
+        "cache_hit": true,
+        "answer_preview": "View serializability is a less stringent form of equivalence compared to conflict serializability. While conflict serializability requires that transa..."
+      },
+      {
+        "topic": "SERIAL",
+        "query": "Show me a schedule that is not serializable.",
+        "latency": 5.487,
+        "cache_hit": true,
+        "answer_preview": "            Based on the information provided, a schedule that is not serializable is one that does not preserve the consistency of the database. The ..."
+      },
+      {
+        "topic": "SERIAL",
+        "query": "Why does concurrency control care about serializability?",
+        "latency": 7.226,
+        "cache_hit": true,
+        "answer_preview": "Concurrency control cares about serializability because it ensures that the overall effect of concurrent transactions is equivalent to a single, seque..."
+      }
+    ]
+  }
+}
