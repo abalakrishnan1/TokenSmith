@@ -27,6 +27,7 @@ from src.retriever import (
     load_artifacts
 )
 from src.ranking.reranker import rerank
+from src.semantic_cache import SemanticCache
 
 ANSWER_NOT_FOUND = "I'm sorry, but I don't have enough information to answer that question."
 
@@ -105,91 +106,105 @@ def get_answer(
     artifacts: Optional[Dict] = None,
     golden_chunks: Optional[list] = None,
     is_test_mode: bool = False,
-    additional_log_info: Optional[Dict[str, Any]] = None
+    additional_log_info: Optional[Dict[str, Any]] = None,
+    semantic_cache: Optional["SemanticCache"] = None,
 ) -> Union[str, Tuple[str, List[Dict[str, Any]], Optional[str]]]:
     """
     Run a single query through the pipeline.
-    """    
+    """
     chunks = artifacts["chunks"]
     sources = artifacts["sources"]
     retrievers = artifacts["retrievers"]
     ranker = artifacts["ranker"]
-    # Ensure these locals exist for all control flows to avoid UnboundLocalError
     ranked_chunks: List[str] = []
     topk_idxs: List[int] = []
     scores = []
-    
-    # Step 1: Get chunks (golden, retrieved, or none)
+    cache_hit = False
+
+    # Semantic cache lookup, returns pre-reranking retriever chunks
+    cache_k = cfg.top_k
+    if semantic_cache is not None and cfg.use_semantic_cache and not is_test_mode:
+        cached_chunks = semantic_cache.search(question, k=cache_k)
+        if cached_chunks is not None:
+            ranked_chunks = cached_chunks
+            cache_hit = True
+            stats = semantic_cache.get_stats()
+            if console:
+                console.print(
+                    f"\n[bold green]Cache hit[/bold green] "
+                    f"(ratio {stats['hit_ratio']:.0%}, "
+                    f"size {stats['cache_size']}/{stats['capacity']}, "
+                    f"batches {stats['num_batches']})\n"
+                )
+
+    # Step 1: Get chunks (golden, retrieved, or none), skipped on cache hit
     chunks_info = None
     hyde_query = None
+
     if golden_chunks and cfg.use_golden_chunks:
-        # Use provided golden chunks
         ranked_chunks = golden_chunks
     elif cfg.disable_chunks:
-        # No chunks - baseline mode
         ranked_chunks = []
     elif cfg.use_indexed_chunks:
         ranked_chunks, topk_idxs = use_indexed_chunks(question, chunks)
-    else:
+    elif not cache_hit:
         retrieval_query = question
         # print(f"Retrieval query: {retrieval_query}")
         if cfg.use_hyde:
             retrieval_query = generate_hypothetical_document(question, cfg.gen_model, max_tokens=cfg.hyde_max_tokens)
-        
+
         pool_n = max(cfg.num_candidates, cfg.top_k + 10)
         raw_scores: Dict[str, Dict[int, float]] = {}
         for retriever in retrievers:
             # print(f"Getting scores from retriever: {retriever.name}...")
             raw_scores[retriever.name] = retriever.get_scores(retrieval_query, pool_n, chunks)
-        # TODO: Fix retrieval logging.
 
-        # print("Raw scores from retrievers:")
-        # for retriever_name, score_dict in raw_scores.items():
-        #     print(f"  {retriever_name}: {list(score_dict.values())}")
         # Step 2: Ranking
         ordered, scores = ranker.rank(raw_scores=raw_scores)
-        # print(f"Ordered candidate indices after ranking: {ordered[:cfg.top_k]}")
-        # print(f"Corresponding scores: {scores[:cfg.top_k]}")
         topk_idxs = filter_retrieved_chunks(cfg, chunks, ordered)
         ranked_chunks = [chunks[i] for i in topk_idxs]
-        # print(f"Top-{cfg.top_k} chunk indices after filtering: {topk_idxs}")
-        # print("Len Ranked chunks:", len(ranked_chunks))
-        # print("Example ranked chunk content:", ranked_chunks[0] if ranked_chunks else "No chunks retrieved")
-        
-        
-        # Capture chunk info if in test mode
-        if is_test_mode:
-            # Compute individual ranker ranks
-            faiss_scores = raw_scores.get("faiss", {})
-            bm25_scores = raw_scores.get("bm25", {})
-            index_scores = raw_scores.get("index_keywords", {})
-            
-            faiss_ranked = sorted(faiss_scores.keys(), key=lambda i: faiss_scores[i], reverse=True)
-            bm25_ranked = sorted(bm25_scores.keys(), key=lambda i: bm25_scores[i], reverse=True)
-            index_ranked = sorted(index_scores.keys(), key=lambda i: index_scores[i], reverse=True)
-            
-            faiss_ranks = {idx: rank + 1 for rank, idx in enumerate(faiss_ranked)}
-            bm25_ranks = {idx: rank + 1 for rank, idx in enumerate(bm25_ranked)}
-            index_ranks = {idx: rank + 1 for rank, idx in enumerate(index_ranked)}
-            
-            chunks_info = []
-            for rank, idx in enumerate(topk_idxs, 1):
-                chunks_info.append({
-                    "rank": rank,
-                    "chunk_id": idx,
-                    "content": chunks[idx],
-                    "faiss_score": faiss_scores.get(idx, 0),
-                    "faiss_rank": faiss_ranks.get(idx, 0),
-                    "bm25_score": bm25_scores.get(idx, 0),
-                    "bm25_rank": bm25_ranks.get(idx, 0),
-                    "index_score": index_scores.get(idx, 0),
-                    "index_rank": index_ranks.get(idx, 0),
-                })
 
-        # Step 3: Final re-ranking
-        ranked_chunks = rerank(question, ranked_chunks, mode=cfg.rerank_mode, top_n=cfg.rerank_top_k)
-        # print("Reranked Chunks", type(ranked_chunks), len(ranked_chunks), type(ranked_chunks[0]) if ranked_chunks else "No chunks")
-        # print("Example reranked chunk content:", ranked_chunks[0] if ranked_chunks else "No chunks after reranking")
+        # Cache insert on miss, store chunk embeddings for future hits
+        if semantic_cache is not None and cfg.use_semantic_cache:
+            semantic_cache.insert(
+                query=question,
+                ranked_chunks=ranked_chunks,
+                chunk_ids=topk_idxs,
+                k=cache_k,
+            )
+
+    # Capture chunk info if in test mode
+    if is_test_mode:
+        faiss_scores = raw_scores.get("faiss", {})
+        bm25_scores = raw_scores.get("bm25", {})
+        index_scores = raw_scores.get("index_keywords", {})
+
+        faiss_ranked = sorted(faiss_scores.keys(), key=lambda i: faiss_scores[i], reverse=True)
+        bm25_ranked = sorted(bm25_scores.keys(), key=lambda i: bm25_scores[i], reverse=True)
+        index_ranked = sorted(index_scores.keys(), key=lambda i: index_scores[i], reverse=True)
+
+        faiss_ranks = {idx: rank + 1 for rank, idx in enumerate(faiss_ranked)}
+        bm25_ranks = {idx: rank + 1 for rank, idx in enumerate(bm25_ranked)}
+        index_ranks = {idx: rank + 1 for rank, idx in enumerate(index_ranked)}
+
+        chunks_info = []
+        for rank, idx in enumerate(topk_idxs, 1):
+            chunks_info.append({
+                "rank": rank,
+                "chunk_id": idx,
+                "content": chunks[idx],
+                "faiss_score": faiss_scores.get(idx, 0),
+                "faiss_rank": faiss_ranks.get(idx, 0),
+                "bm25_score": bm25_scores.get(idx, 0),
+                "bm25_rank": bm25_ranks.get(idx, 0),
+                "index_score": index_scores.get(idx, 0),
+                "index_rank": index_ranks.get(idx, 0),
+            })
+
+    # Step 3: Final re-ranking
+    ranked_chunks = rerank(question, ranked_chunks, mode=cfg.rerank_mode, top_n=cfg.rerank_top_k)
+    # print("Reranked Chunks", type(ranked_chunks), len(ranked_chunks), type(ranked_chunks[0]) if ranked_chunks else "No chunks")
+    # print("Example reranked chunk content:", ranked_chunks[0] if ranked_chunks else "No chunks after reranking")
 
     if not ranked_chunks and not cfg.disable_chunks:
         if console:
@@ -218,7 +233,7 @@ def get_answer(
             max_tokens=cfg.max_gen_tokens,
             system_prompt_mode=system_prompt,
         )
-
+    
     if is_test_mode:
         # We do not render MD in the test mode
         ans = ""
@@ -227,8 +242,14 @@ def get_answer(
         ans = dedupe_generated_text(ans)
         return ans, chunks_info, hyde_query
     else:
-        # Accumulate the full text while rendering incremental Markdown chunks
-        ans = render_streaming_ans(console, stream_iter)
+        if cfg.disable_streaming:
+            ans = ""
+            for delta in stream_iter:
+                ans += delta
+            ans = dedupe_generated_text(ans)
+            # print(ans)
+        else:
+            ans = render_streaming_ans(console, stream_iter)
 
         # Logging
         meta = artifacts.get("meta", [])
@@ -298,12 +319,17 @@ def run_chat_session(args: argparse.Namespace, cfg: RAGConfig):
         print(f"ERROR: {e}. Run 'index' mode first.")
         sys.exit(1)
 
+    semantic_cache = None
+    if cfg.use_semantic_cache:
+        semantic_cache = SemanticCache(capacity=cfg.cache_capacity, alpha=cfg.cache_alpha, deviation=cfg.cache_deviation, embed_model=cfg.embed_model)
+        print(f"Semantic cache enabled (capacity={cfg.cache_capacity}, alpha={cfg.cache_alpha}, deviation={cfg.cache_deviation}).")
+
     chat_history = []
     additional_log_info = {}
     print("Initialization complete. You can start asking questions!")
     print("Type 'exit' or 'quit' to end the session.")
     while True:
-        print("CHAT HISTORY:", chat_history)  # Debug print to trace chat history
+        # print("CHAT HISTORY:", chat_history)  # Debug print to trace chat history
         try:
             q = input("\nAsk > ").strip()
             if not q:
@@ -325,8 +351,12 @@ def run_chat_session(args: argparse.Namespace, cfg: RAGConfig):
                     print(f"Warning: Failed to contextualize query: {e}. Using original query.")
                     effective_q = q
             
-            # Use the single query function. get_answer also renders the streaming markdown and takes care of logging, so we need not do anything else here.
-            ans = get_answer(effective_q, cfg, args, logger, console, artifacts=artifacts, additional_log_info=additional_log_info)
+            ans = get_answer(
+                effective_q, cfg, args, logger, console,
+                artifacts=artifacts,
+                additional_log_info=additional_log_info,
+                semantic_cache=semantic_cache,
+            )
 
             # Update Chat history (make it atomic for user + assistant turn)
             try:

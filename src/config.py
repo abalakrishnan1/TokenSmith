@@ -39,7 +39,8 @@ class RAGConfig:
     use_golden_chunks: bool = False
     output_mode: str = "terminal"
     metrics: list = field(default_factory=lambda: ["all"])
-
+    disable_streaming: bool = False
+    
     # query enhancement
     use_hyde: bool = False
     hyde_max_tokens: int = 300
@@ -53,6 +54,12 @@ class RAGConfig:
     use_indexed_chunks: bool = False
     extracted_index_path: os.PathLike = "data/extracted_index.json"
     page_to_chunk_map_path: os.PathLike = "index/sections/textbook_index_page_to_chunk_map.json"
+
+    # semantic cache (QVCache-inspired)
+    use_semantic_cache: bool = False
+    cache_capacity: int = 100
+    cache_deviation: float = 0.30
+    cache_alpha: float = 0.9
 
     # user feedback modeling
     enable_topic_extraction: bool = False

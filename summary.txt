@@ -1,0 +1,33 @@
+================================================================================
+  SUMMARY
+================================================================================
+
+  no_cache
+    mean latency : 4.93s
+    total time   : 98.6s
+    hits         : 0/20
+    miss mean    : 4.93s
+    ACID  : 0/10 hits, mean 5.11s
+    SERIAL: 0/10 hits, mean 4.74s
+
+  cache_cold
+    mean latency : 5.19s
+    total time   : 103.7s
+    hits         : 10/20
+    hit  mean    : 5.35s
+    miss mean    : 5.02s
+    ACID  : 5/10 hits, mean 5.04s
+    SERIAL: 5/10 hits, mean 5.34s
+
+  cache_warm_paraphrase
+    mean latency : 4.63s
+    total time   : 92.6s
+    hits         : 17/20
+    hit  mean    : 4.46s
+    miss mean    : 5.57s
+    ACID  : 8/10 hits, mean 4.61s
+    SERIAL: 9/10 hits, mean 4.65s
+
+  Speedup (divide by warm-paraphrase): 1.06x
+
+  Results saved to scripts\cache_benchmark_results.json
